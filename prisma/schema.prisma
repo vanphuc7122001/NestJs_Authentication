@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String
+  password      String
+  avatar        String?       @db.VarChar(200)
+  firstName     String
+  lastName      String
+  refresh_token RefreshToken?
+  note          Note[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id                 String             @id @default(uuid())
+  user_id            String             @unique
+  refresh_token      String             @db.Text
+  refresh_token_used RefreshTokenUsed[]
+  user               User               @relation(fields: [user_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("refreshTokens")
+}
+
+model RefreshTokenUsed {
+  id             String        @id @default(uuid())
+  token          String
+  RefreshToken   RefreshToken? @relation(fields: [refreshTokenId], references: [id])
+  refreshTokenId String?
+
+  @@map("refreshTokensUsed")
+}
+
+model Note {
+  id          String @id @default(uuid())
+  title       String
+  description String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@map("notes")
+}
