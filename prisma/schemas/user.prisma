@@ -1,0 +1,21 @@
+model User {
+    id        String         @id @default(uuid())
+    email     String
+    password  String
+    avatar    String?        @db.VarChar(200)
+    firstName String
+    lastName  String
+    role      Role           @default(USER)
+    createdAt DateTime       @default(now())
+    updatedAt DateTime       @updatedAt
+    note      Note[]
+    post      Post[]
+    token     RefreshToken[]
+
+    @@map("users")
+}
+
+enum Role {
+    USER
+    ADMIN
+}
